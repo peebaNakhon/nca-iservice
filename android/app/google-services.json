@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "992459273999",
+    "project_id": "ncaiservice-2",
+    "storage_bucket": "ncaiservice-2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:992459273999:android:56aac144d81c30355f707a",
+        "android_client_info": {
+          "package_name": "com.ncadvance.ncais"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "992459273999-e5apg8400asphfog6u14cu76dog5ahg5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgVh2aRHxBW8_F3fRxK1bBZEiafxj3khg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "992459273999-e5apg8400asphfog6u14cu76dog5ahg5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

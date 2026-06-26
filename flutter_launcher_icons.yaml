@@ -1,0 +1,20 @@
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/wetiOS.png"
+  image_path_ios : "assets/wetiOS.png"
+  adaptive_icon_background : #0e74b8
+  remove_alpha_ios : true
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/wetiOS.png"
+    background_color: "#hexcode"
+    theme_color: "#0e74b8"
+  windows:
+    generate: true
+    image_path: "assets/wetiOS.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: false
+    image_path: "assets/wetiOS.png"
