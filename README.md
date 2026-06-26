@@ -111,7 +111,7 @@
 
 ### Flutter version 
 ```
-flutter --version
+fvm flutter --version
 Flutter 3.13.9 • channel stable • https://github.com/flutter/flutter.git
 Framework • revision d211f42860 (2 years, 8 months ago) • 2023-10-25 13:42:25 -0700
 Engine • revision 0545f8705d
