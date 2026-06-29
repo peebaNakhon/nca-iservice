@@ -28,7 +28,10 @@ void main() async {
   runApp(
     MaterialApp(
         //theme: ThemeData(useMaterial3: true),
-        theme: ThemeData(useMaterial3: true, scaffoldBackgroundColor: Color.fromARGB(255, 255, 255, 255), fontFamily: 'Prompt'),
+        theme: ThemeData(
+            useMaterial3: true,
+            scaffoldBackgroundColor: Color.fromARGB(255, 255, 255, 255),
+            fontFamily: 'Prompt'),
         home: const SplashScreen(
           assetImage: AssetImage('assets/wetiOS.png'),
         ),
@@ -45,8 +48,7 @@ class WebViewApp extends StatefulWidget {
 }
 
 class _WebViewAppState extends State<WebViewApp> {
-  static final DateTime _allowedAt = DateTime(2026, 6, 29, 13, 15);
-  static const int _reloadCountdownSeconds = 10;
+  static final DateTime _allowedAt = DateTime(2026, 7, 1, 5, 0);
 
   String open1stTime = '0';
   String barcodeValue = '';
@@ -61,12 +63,10 @@ class _WebViewAppState extends State<WebViewApp> {
 
   bool enableZoom = false;
   bool _webViewLoaded = false;
-  bool _dialogShowing = false;
-  int _countdownSeconds = _reloadCountdownSeconds;
   Timer? _countdownTimer;
-  StateSetter? _dialogSetState;
 
-  HoneywellScanner honeywellScanner = HoneywellScanner(onScannerDecodeCallback: (ScannedData? scannedData) {
+  HoneywellScanner honeywellScanner =
+      HoneywellScanner(onScannerDecodeCallback: (ScannedData? scannedData) {
     String? resultCode = scannedData?.code.toString();
     log('Decode Result Code: $resultCode');
   }, onScannerErrorCallback: (error) {
@@ -124,17 +124,20 @@ class _WebViewAppState extends State<WebViewApp> {
         ),
       );
 
-      log(result.type.toString()); // The result type (barcode, cancelled, failed)
+      log(result.type
+          .toString()); // The result type (barcode, cancelled, failed)
       log(result.rawContent.toString()); // The barcode content
       log(result.format.toString()); // The barcode format (as enum)
-      log(result.formatNote.toString()); // If a unknown format was scanned this field contains a note
+      log(result.formatNote
+          .toString()); // If a unknown format was scanned this field contains a note
       if (result.type.toString() == 'Cancelled') {
         return;
       }
       String barcodeScanResult = result.rawContent.toString();
       log('barcodeScanResult : $barcodeScanResult');
       if (barcodeScanResult.length < 8) {
-        webViewcontroller.runJavaScript("fireAlert('พบข้อผิดพลาดในการอ่านบาร์โค้ด<br>กรุณาลองอีกครั้ง');");
+        webViewcontroller.runJavaScript(
+            "fireAlert('พบข้อผิดพลาดในการอ่านบาร์โค้ด<br>กรุณาลองอีกครั้ง');");
         return;
       }
       setState(() {
@@ -182,14 +185,17 @@ class _WebViewAppState extends State<WebViewApp> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('เลือกรูปแบบการถ่ายรูป'),
-            content: const Text('1 รูปสำหรับถ่ายรูปทั่วไป\r\n2 รูปสำหรับถ่ายบัตรหน้าหลัง\r\nโปรดตั้งอัตราส่วนรูปเป็น 1:1 เมื่อถ่าย 2 รูป'),
+            content: const Text(
+                '1 รูปสำหรับถ่ายรูปทั่วไป\r\n2 รูปสำหรับถ่ายบัตรหน้าหลัง\r\nโปรดตั้งอัตราส่วนรูปเป็น 1:1 เมื่อถ่าย 2 รูป'),
             actions: <Widget>[
               Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch, // Aligns children to take full width
+                crossAxisAlignment: CrossAxisAlignment
+                    .stretch, // Aligns children to take full width
                 children: [
                   ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(1),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.lightBlue.shade400),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.lightBlue.shade400),
                     child: const Text(
                       'ถ่าย 1 รูป',
                       style: TextStyle(color: Colors.white),
@@ -197,7 +203,8 @@ class _WebViewAppState extends State<WebViewApp> {
                   ),
                   ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(2),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.pink.shade400),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pink.shade400),
                     child: const Text(
                       'ถ่าย 2 รูป (หน้าหลังบัตร)',
                       style: TextStyle(color: Colors.white),
@@ -205,7 +212,8 @@ class _WebViewAppState extends State<WebViewApp> {
                   ),
                   ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(3),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.purpleAccent.shade400),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purpleAccent.shade400),
                     child: const Text(
                       'เลือกรูปจากแกลลอรี่',
                       style: TextStyle(color: Colors.white),
@@ -229,7 +237,8 @@ class _WebViewAppState extends State<WebViewApp> {
         for (int i = 0; i < choice; i++) {
           final int countImg = i + 1;
           EasyLoading.show(status: "ถ่ายรูป $countImg / $choice รูป");
-          final XFile? pickedFile = await picker.pickImage(source: ImageSource.camera, maxWidth: 300, imageQuality: 100);
+          final XFile? pickedFile = await picker.pickImage(
+              source: ImageSource.camera, maxWidth: 300, imageQuality: 100);
           if (pickedFile != null) {
             pickedFiles.add(pickedFile);
           } else {
@@ -237,7 +246,8 @@ class _WebViewAppState extends State<WebViewApp> {
           }
         }
       } else {
-        final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery, maxWidth: 300, imageQuality: 100);
+        final XFile? pickedFile = await picker.pickImage(
+            source: ImageSource.gallery, maxWidth: 300, imageQuality: 100);
         if (pickedFile != null) {
           pickedFiles.add(pickedFile);
         } else {
@@ -255,9 +265,11 @@ class _WebViewAppState extends State<WebViewApp> {
       if (choice == 1 || choice == 3) {
         final XFile pickedFile = pickedFiles.first!;
         final Uint8List bitmapData = await pickedFile.readAsBytes();
-        List<int>? compressedBytes = await FlutterImageCompress.compressWithList(bitmapData);
+        List<int>? compressedBytes =
+            await FlutterImageCompress.compressWithList(bitmapData);
         // if (compressedBytes == null) return;
-        final img.Image imageDe = img.decodeImage(Uint8List.fromList(compressedBytes))!;
+        final img.Image imageDe =
+            img.decodeImage(Uint8List.fromList(compressedBytes))!;
         // Encode the compressed image as PNG
         final List<int> pngData = img.encodePng(imageDe);
         String imgBase64 = base64Encode(pngData);
@@ -277,9 +289,12 @@ class _WebViewAppState extends State<WebViewApp> {
         final img.Image secondImage = img.decodeImage(secondImageBytes)!;
 
         final int combinedWidth = firstImage.width + secondImage.width;
-        final int maxHeight = firstImage.height > secondImage.height ? firstImage.height : secondImage.height;
+        final int maxHeight = firstImage.height > secondImage.height
+            ? firstImage.height
+            : secondImage.height;
 
-        final img.Image combinedImage = img.Image(width: combinedWidth, height: maxHeight);
+        final img.Image combinedImage =
+            img.Image(width: combinedWidth, height: maxHeight);
 
         for (int y = 0; y < firstImage.height; y++) {
           for (int x = 0; x < firstImage.width; x++) {
@@ -289,13 +304,17 @@ class _WebViewAppState extends State<WebViewApp> {
 
         for (int y = 0; y < secondImage.height; y++) {
           for (int x = 0; x < secondImage.width; x++) {
-            combinedImage.setPixel(x + firstImage.width, y, secondImage.getPixel(x, y));
+            combinedImage.setPixel(
+                x + firstImage.width, y, secondImage.getPixel(x, y));
           }
         }
 
         final List<int> pngData = img.encodePng(combinedImage);
-        List<int>? furtherCompressedBytes = await FlutterImageCompress.compressWithList(Uint8List.fromList(pngData));
-        final img.Image finalImage = img.decodeImage(Uint8List.fromList(furtherCompressedBytes))!;
+        List<int>? furtherCompressedBytes =
+            await FlutterImageCompress.compressWithList(
+                Uint8List.fromList(pngData));
+        final img.Image finalImage =
+            img.decodeImage(Uint8List.fromList(furtherCompressedBytes))!;
         final List<int> finalPngData = img.encodePng(finalImage);
 
         String imgBase64 = base64Encode(finalPngData);
@@ -342,7 +361,8 @@ class _WebViewAppState extends State<WebViewApp> {
 
   // final Uri _url = Uri.parse(
   //     'http://203.146.21.210/edascan/update.html'); // this is url to update redirect page
-  final Uri _url = Uri.parse('http://203.151.125.243/edascan/update.html'); // this is url to update redirect page
+  final Uri _url = Uri.parse(
+      'http://203.151.125.243/edascan/update.html'); // this is url to update redirect page
   Future<void> userWantToUpdateApp() async {
     if (!await launchUrl(_url, mode: LaunchMode.externalApplication)) {
       throw Exception('Could not launch $_url');
@@ -370,6 +390,20 @@ class _WebViewAppState extends State<WebViewApp> {
     return '$day/$month/$year $hour:$minute';
   }
 
+  String _formatRemainingTime() {
+    final remaining = _allowedAt.difference(DateTime.now());
+    if (remaining.isNegative || remaining.inSeconds <= 0) {
+      return '0 วัน 0 ชม 0 นาที 0 วินาที';
+    }
+
+    final days = remaining.inDays;
+    final hours = remaining.inHours.remainder(24);
+    final minutes = remaining.inMinutes.remainder(60);
+    final seconds = remaining.inSeconds.remainder(60);
+
+    return '$days วัน $hours ชม $minutes นาที $seconds วินาที';
+  }
+
   Future<void> _loadWebViewIfNeeded() async {
     if (_webViewLoaded) {
       await webViewcontroller.reload();
@@ -377,7 +411,8 @@ class _WebViewAppState extends State<WebViewApp> {
     }
 
     _webViewLoaded = true;
-    await webViewcontroller.loadRequest(Uri.parse('http://203.151.125.243/edascan/index.php'));
+    await webViewcontroller
+        .loadRequest(Uri.parse('http://203.151.125.243/edascan/index.php'));
     await webViewcontroller.enableZoom(enableZoom);
   }
 
@@ -386,9 +421,6 @@ class _WebViewAppState extends State<WebViewApp> {
 
     if (_isUsageAllowed()) {
       _countdownTimer?.cancel();
-      if (_dialogShowing && Navigator.of(context, rootNavigator: true).canPop()) {
-        Navigator.of(context, rootNavigator: true).pop();
-      }
       await _loadWebViewIfNeeded();
       if (mounted) {
         setState(() {});
@@ -398,7 +430,6 @@ class _WebViewAppState extends State<WebViewApp> {
 
     EasyLoading.dismiss();
     _startCountdown();
-    _showUnavailableDialog();
     if (mounted) {
       setState(() {});
     }
@@ -406,70 +437,19 @@ class _WebViewAppState extends State<WebViewApp> {
 
   void _startCountdown() {
     _countdownTimer?.cancel();
-    _countdownSeconds = _reloadCountdownSeconds;
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
         timer.cancel();
         return;
       }
 
-      if (_countdownSeconds <= 1) {
+      if (_isUsageAllowed()) {
         timer.cancel();
-        _countdownSeconds = _reloadCountdownSeconds;
-        _dialogSetState?.call(() {});
         _attemptLaunchWebView();
         return;
       }
 
-      _countdownSeconds -= 1;
-      if (_dialogShowing) {
-        _dialogSetState?.call(() {});
-      }
       setState(() {});
-    });
-  }
-
-  void _showUnavailableDialog() {
-    if (_dialogShowing || !mounted) {
-      return;
-    }
-
-    _dialogShowing = true;
-    showDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            _dialogSetState = setDialogState;
-            return AlertDialog(
-              title: const Text('ยังไม่เปิดให้ใช้งาน'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('เปิดใช้งานได้ตั้งแต่ ${_formatAllowedAt()}'),
-                  const SizedBox(height: 12),
-                  Text('ระบบจะตรวจสอบใหม่ในอีก $_countdownSeconds วินาที'),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    _countdownTimer?.cancel();
-                    Navigator.of(dialogContext).pop();
-                    SystemNavigator.pop();
-                  },
-                  child: const Text('ปิด'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    ).then((_) {
-      _dialogShowing = false;
-      _dialogSetState = null;
     });
   }
 
@@ -503,7 +483,8 @@ class _WebViewAppState extends State<WebViewApp> {
             PackageInfo packageInfo = await PackageInfo.fromPlatform();
             String version = packageInfo.version;
 
-            final allInfo = '${deviceInfo.model} | OSA:${deviceInfo.version.release} | $version';
+            final allInfo =
+                '${deviceInfo.model} | OSA:${deviceInfo.version.release} | $version';
             sendDeviceInfo(allInfo.toString().trim());
             log(allInfo.toString().trim());
             EasyLoading.dismiss();
@@ -511,13 +492,15 @@ class _WebViewAppState extends State<WebViewApp> {
         },
       ))
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..addJavaScriptChannel('flutterCommu', onMessageReceived: (JavaScriptMessage message) {
+      ..addJavaScriptChannel('flutterCommu',
+          onMessageReceived: (JavaScriptMessage message) {
         log('MessageReceived : ${message.message}');
         if (message.message == 'scanbarcode') {
           scanBarcode();
         } else if (message.message.contains('takePhoto')) {
           log(message.message.substring(11, 14).replaceAll("'", ''));
-          takePhoto(context, message.message.substring(11, 14).replaceAll("'", ''));
+          takePhoto(
+              context, message.message.substring(11, 14).replaceAll("'", ''));
         } else if (message.message == 'startEDA') {
           startScanEDA();
           log('EDA is Ready To Use!');
@@ -560,11 +543,13 @@ class _WebViewAppState extends State<WebViewApp> {
             content: const Text('ต้องการออกจากแอปพลิเคชันหรือไม่?'),
             actions: <Widget>[
               TextButton(
-                onPressed: () => Navigator.of(context).pop(false), //<-- SEE HERE
+                onPressed: () =>
+                    Navigator.of(context).pop(false), //<-- SEE HERE
                 child: const Text('ไม่'),
               ),
               TextButton(
-                onPressed: () => Navigator.of(context).pop(true), // <-- SEE HERE
+                onPressed: () =>
+                    Navigator.of(context).pop(true), // <-- SEE HERE
                 child: const Text('ใช่'),
               ),
             ],
@@ -582,25 +567,114 @@ class _WebViewAppState extends State<WebViewApp> {
         body: SafeArea(
           child: _webViewLoaded
               ? WebViewWidget(controller: webViewcontroller)
-              : Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const CircularProgressIndicator(),
-                        const SizedBox(height: 24),
-                        Text(
-                          'แอพจะเปิดให้ใช้งานวันที่ ${_formatAllowedAt()}',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16),
+              : Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.blue.shade50, Colors.white],
+                    ),
+                  ),
+                  child: Center(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(24),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 420),
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 24,
+                                offset: const Offset(0, 12),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                  width: 72,
+                                  height: 72,
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade50,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.asset(
+                                        'assets/wetiOS.png',
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              const SizedBox(height: 20),
+                              const Text(
+                                'ระบบยังไม่เปิดให้ใช้งาน',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 24, fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                'แอปจะเปิดให้ใช้งานวันที่ ${_formatAllowedAt()}',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  height: 1.5,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 18, vertical: 16),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.shade50,
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'พร้อมใช้งานในอีก',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.blue.shade700,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      _formatRemainingTime(),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w700,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+                              Text(
+                                'ระบบจะเปิดให้ใช้งานโดยอัตโนมัติเมื่อถึงเวลาที่กำหนด',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 13, color: Colors.grey.shade600),
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'กำลังตรวจสอบใหม่ในอีก $_countdownSeconds วินาที',
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
