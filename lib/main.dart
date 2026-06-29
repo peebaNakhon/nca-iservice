@@ -63,6 +63,7 @@ class _WebViewAppState extends State<WebViewApp> {
 
   bool enableZoom = false;
   bool _webViewLoaded = false;
+  bool _isCheckingAccess = true;
   Timer? _countdownTimer;
 
   HoneywellScanner honeywellScanner =
@@ -421,9 +422,14 @@ class _WebViewAppState extends State<WebViewApp> {
 
     if (_isUsageAllowed()) {
       _countdownTimer?.cancel();
+      setState(() {
+        _isCheckingAccess = true;
+      });
       await _loadWebViewIfNeeded();
       if (mounted) {
-        setState(() {});
+        setState(() {
+          _isCheckingAccess = false;
+        });
       }
       return;
     }
@@ -431,7 +437,9 @@ class _WebViewAppState extends State<WebViewApp> {
     EasyLoading.dismiss();
     _startCountdown();
     if (mounted) {
-      setState(() {});
+      setState(() {
+        _isCheckingAccess = false;
+      });
     }
   }
 
@@ -565,119 +573,132 @@ class _WebViewAppState extends State<WebViewApp> {
       child: Scaffold(
         appBar: null,
         body: SafeArea(
-          child: _webViewLoaded
-              ? WebViewWidget(controller: webViewcontroller)
-              : Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.blue.shade50, Colors.white],
-                    ),
+          child: _isCheckingAccess
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('กำลังตรวจสอบเวลาเข้าใช้งาน...'),
+                    ],
                   ),
-                  child: Center(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(24),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 420),
-                        child: Container(
+                )
+              : _webViewLoaded
+                  ? WebViewWidget(controller: webViewcontroller)
+                  : Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.blue.shade50, Colors.white],
+                        ),
+                      ),
+                      child: Center(
+                        child: SingleChildScrollView(
                           padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.08),
-                                blurRadius: 24,
-                                offset: const Offset(0, 12),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                  width: 72,
-                                  height: 72,
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
-                                    borderRadius: BorderRadius.circular(20),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 420),
+                            child: Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.08),
+                                    blurRadius: 24,
+                                    offset: const Offset(0, 12),
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Image.asset(
-                                        'assets/wetiOS.png',
-                                        fit: BoxFit.contain,
+                                ],
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 72,
+                                    height: 72,
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade50,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Image.asset(
+                                          'assets/wetiOS.png',
+                                          fit: BoxFit.contain,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              const SizedBox(height: 20),
-                              const Text(
-                                'ระบบยังไม่เปิดให้ใช้งาน',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.w700),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                'แอปจะเปิดให้ใช้งานวันที่ ${_formatAllowedAt()}',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  height: 1.5,
-                                  color: Colors.grey.shade700,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 18, vertical: 16),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.shade50,
-                                  borderRadius: BorderRadius.circular(18),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      'พร้อมใช้งานในอีก',
-                                      style: TextStyle(
+                                  const SizedBox(height: 20),
+                                  const Text(
+                                    'ระบบยังไม่เปิดให้ใช้งาน',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w700),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    'แอปจะเปิดให้ใช้งานวันที่ ${_formatAllowedAt()}',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      height: 1.5,
+                                      color: Colors.grey.shade700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 18, vertical: 16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade50,
+                                      borderRadius: BorderRadius.circular(18),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          'พร้อมใช้งานในอีก',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.blue.shade700,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          _formatRemainingTime(),
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w700,
+                                            height: 1.4,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 18),
+                                  Text(
+                                    'ระบบจะเปิดให้ใช้งานโดยอัตโนมัติเมื่อถึงเวลาที่กำหนด',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
                                         fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.blue.shade700,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      _formatRemainingTime(),
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w700,
-                                        height: 1.4,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                        color: Colors.grey.shade600),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 18),
-                              Text(
-                                'ระบบจะเปิดให้ใช้งานโดยอัตโนมัติเมื่อถึงเวลาที่กำหนด',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 13, color: Colors.grey.shade600),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
         ),
       ),
     );
