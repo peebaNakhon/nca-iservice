@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ncaisbf/SplashScreen.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -12,7 +12,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:honeywell_scanner/honeywell_scanner.dart';
 //import 'dart:io';
-import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -46,6 +45,9 @@ class WebViewApp extends StatefulWidget {
 }
 
 class _WebViewAppState extends State<WebViewApp> {
+  static final DateTime _allowedAt = DateTime(2026, 6, 29, 13, 15);
+  static const int _reloadCountdownSeconds = 10;
+
   String open1stTime = '0';
   String barcodeValue = '';
   late WebViewController webViewcontroller;
@@ -58,6 +60,11 @@ class _WebViewAppState extends State<WebViewApp> {
   bool isDeviceSupported = false;
 
   bool enableZoom = false;
+  bool _webViewLoaded = false;
+  bool _dialogShowing = false;
+  int _countdownSeconds = _reloadCountdownSeconds;
+  Timer? _countdownTimer;
+  StateSetter? _dialogSetState;
 
   HoneywellScanner honeywellScanner = HoneywellScanner(onScannerDecodeCallback: (ScannedData? scannedData) {
     String? resultCode = scannedData?.code.toString();
@@ -349,6 +356,123 @@ class _WebViewAppState extends State<WebViewApp> {
     }
   }
 
+  bool _isUsageAllowed() {
+    return !DateTime.now().isBefore(_allowedAt);
+  }
+
+  String _formatAllowedAt() {
+    final day = _allowedAt.day.toString().padLeft(2, '0');
+    final month = _allowedAt.month.toString().padLeft(2, '0');
+    final year = _allowedAt.year.toString();
+    final hour = _allowedAt.hour.toString().padLeft(2, '0');
+    final minute = _allowedAt.minute.toString().padLeft(2, '0');
+
+    return '$day/$month/$year $hour:$minute';
+  }
+
+  Future<void> _loadWebViewIfNeeded() async {
+    if (_webViewLoaded) {
+      await webViewcontroller.reload();
+      return;
+    }
+
+    _webViewLoaded = true;
+    await webViewcontroller.loadRequest(Uri.parse('http://203.151.125.243/edascan/index.php'));
+    await webViewcontroller.enableZoom(enableZoom);
+  }
+
+  Future<void> _attemptLaunchWebView() async {
+    if (!mounted) return;
+
+    if (_isUsageAllowed()) {
+      _countdownTimer?.cancel();
+      if (_dialogShowing && Navigator.of(context, rootNavigator: true).canPop()) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+      await _loadWebViewIfNeeded();
+      if (mounted) {
+        setState(() {});
+      }
+      return;
+    }
+
+    EasyLoading.dismiss();
+    _startCountdown();
+    _showUnavailableDialog();
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _startCountdown() {
+    _countdownTimer?.cancel();
+    _countdownSeconds = _reloadCountdownSeconds;
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      if (_countdownSeconds <= 1) {
+        timer.cancel();
+        _countdownSeconds = _reloadCountdownSeconds;
+        _dialogSetState?.call(() {});
+        _attemptLaunchWebView();
+        return;
+      }
+
+      _countdownSeconds -= 1;
+      if (_dialogShowing) {
+        _dialogSetState?.call(() {});
+      }
+      setState(() {});
+    });
+  }
+
+  void _showUnavailableDialog() {
+    if (_dialogShowing || !mounted) {
+      return;
+    }
+
+    _dialogShowing = true;
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            _dialogSetState = setDialogState;
+            return AlertDialog(
+              title: const Text('ยังไม่เปิดให้ใช้งาน'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('เปิดใช้งานได้ตั้งแต่ ${_formatAllowedAt()}'),
+                  const SizedBox(height: 12),
+                  Text('ระบบจะตรวจสอบใหม่ในอีก $_countdownSeconds วินาที'),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    _countdownTimer?.cancel();
+                    Navigator.of(dialogContext).pop();
+                    SystemNavigator.pop();
+                  },
+                  child: const Text('ปิด'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    ).then((_) {
+      _dialogShowing = false;
+      _dialogSetState = null;
+    });
+  }
+
   @override
   void initState() {
     EasyLoading.show(status: 'รอซักครู่...');
@@ -404,14 +528,10 @@ class _WebViewAppState extends State<WebViewApp> {
           userWantToUpdateApp();
         }
       });
-
-    // webViewcontroller.loadRequest(Uri.parse('http://192.1.1.240/aboard/')).then((value) async {
-    //   webViewcontroller.enableZoom(enableZoom);
-    // });
-    webViewcontroller.loadRequest(Uri.parse('http://203.151.125.243/edascan/index.php')).then((value) async {
-      webViewcontroller.enableZoom(enableZoom);
-    });
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _attemptLaunchWebView();
+    });
   }
 
   Future<void> initializeHoneywellScanner() async {
@@ -460,9 +580,38 @@ class _WebViewAppState extends State<WebViewApp> {
       child: Scaffold(
         appBar: null,
         body: SafeArea(
-          child: WebViewWidget(controller: webViewcontroller),
+          child: _webViewLoaded
+              ? WebViewWidget(controller: webViewcontroller)
+              : Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 24),
+                        Text(
+                          'แอพจะเปิดให้ใช้งานวันที่ ${_formatAllowedAt()}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'กำลังตรวจสอบใหม่ในอีก $_countdownSeconds วินาที',
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    super.dispose();
   }
 }

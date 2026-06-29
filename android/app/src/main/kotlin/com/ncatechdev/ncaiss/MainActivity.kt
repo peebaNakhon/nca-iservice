@@ -1,4 +1,4 @@
-package com.ncadvance.ncais
+package com.ncadvance.ncaisv2
 
 import io.flutter.embedding.android.FlutterActivity
 
